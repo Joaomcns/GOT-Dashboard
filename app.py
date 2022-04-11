@@ -11,4 +11,3 @@ import plotly.express as px
 
 
 
-path = 'https://raw.githubusercontent.com/InesRoque3/GroupV_project2/main/data/'
