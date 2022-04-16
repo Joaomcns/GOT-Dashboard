@@ -10,4 +10,5 @@ pandas
 plotly
 requests
 raceplotly
+openpyxl
 streamlit
