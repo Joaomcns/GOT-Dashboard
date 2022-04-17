@@ -1,6 +1,6 @@
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 from dash.dependencies import Input, Output, State
 import dash_daq as daq
 import dash_bootstrap_components as dbc
@@ -11,13 +11,13 @@ import plotly.express as px
 from raceplotly.plots import barplot
 
 
-# path = 'https://raw.githubusercontent.com/Joaomcns/Group___DVProject/tree/main/data'
+path = 'https://raw.githubusercontent.com/Joaomcns/Group_47_DVProject/master/data/'
 
-characters = pd.read_csv('data/Characters.csv')
-episodes = pd.read_csv('data/Episodes.csv')
-lines = pd.read_excel('data/Lines.xlsx')
-ratings = pd.read_csv('data/episode_ratings_got.csv')
-deaths = pd.read_excel('data/game-of-thones-deaths.xlsx')
+characters = pd.read_csv(path + 'Characters.csv')
+episodes = pd.read_csv(path + 'Episodes.csv')
+lines = pd.read_excel(path + 'Lines.xlsx')
+ratings = pd.read_csv(path + 'episode_ratings_got.csv')
+deaths = pd.read_excel(path + 'game-of-thones-deaths.xlsx')
 
 episodes['seasonNumber'] = episodes['seasonNumber'].astype(str)
 
@@ -35,8 +35,8 @@ s8 = episodes[episodes['seasonNumber'] == '8'].sort_values("millionViewers")
 s_total = episodes.sort_values("millionViewers")
 s_total_1 = s_total[0:-1].tail(10)
 
-bar_colors = ['#7B7D7D ', '#626567', '#4D5656', '#424949 ', '#1A5276', '#1B4F72', '#154360', '#1B2631', '#1C3575']
-bar_options = [s1, s2, s3, s4, s5, s6, s7, s8, s_total_1]
+scatter_colors = ['#DAA520', '#DAA520', '#DAA520', '#DAA520 ', '#DAA520', '#DAA520', '#DAA520', '#DAA520', '#DAA520']
+scatter_options = [s1, s2, s3, s4, s5, s6, s7, s8, s_total_1]
 
 tot_list = []
 final = []
@@ -83,13 +83,13 @@ lines=lines[lines["House"].isin(house_to_keep)==True]
 stack=lines.groupby(['House', 'Season'], as_index=False)['lineCount'].sum()
 
 fig_lines = px.bar(stack, y="House", x="lineCount", color="Season", title="Total lines said for each House",
-             color_discrete_sequence=px.colors.qualitative.Antique)
+             color_discrete_sequence=px.colors.sequential.ice_r)
 fig_lines.update_layout(yaxis={'categoryorder':'array', 'categoryarray':['Tully','Martell' ,'Tyrell','Mormont','Greyjoy',
                                                                    'Baratheon','Targaryen','Snow','Stark','Lannister']},)
 
 
 fig_test = px.bar(stack, x="House", y="lineCount", color="Season", title="Total lines said for each House",
-             color_discrete_sequence=px.colors.qualitative.Antique)
+             color_discrete_sequence=px.colors.sequential.ice_r)
 fig_test.update_layout(xaxis={'categoryorder':'array', 'categoryarray':['Lannister','Stark','Snow','Targaryen','Baratheon',
                                                                    'Greyjoy', 'Mormont', 'Tyrell', 'Martell', 'Tully']})
 
@@ -99,7 +99,7 @@ top5killers = deaths_count[(deaths_count['Name'] == 'Jon Snow') | (deaths_count[
             |(deaths_count['Name'] == 'Daenerys Targaryen') | (deaths_count['Name'] == 'Arya Stark')
             |(deaths_count['Name'] == 'Grey Worm') ]
 
-fig_char = px.bar(top5killers, x="Kills", y="Name", orientation='h',color_discrete_sequence=px.colors.qualitative.Antique)
+fig_char = px.bar(top5killers, x="Kills", y="Name", orientation='h',color_discrete_sequence=px.colors.sequential.Teal_r)
 
 fig_char.update_layout(yaxis={'categoryorder':'array', 'categoryarray':['Grey Worm','Jon Snow','Arya Stark','Cersei Lannister','Daenerys Targaryen' ]})
 
@@ -160,7 +160,10 @@ drop_houses = dcc.Dropdown(
 )
 episodes['episodeAirYear'] = episodes['episodeAirDate'].apply(lambda x: x.split('-')[0])
 my_raceplot = barplot(episodes,  item_column='episodeTitle', value_column='averageRating', time_column='episodeAirYear')
-my_raceplot = my_raceplot.plot(item_label='Top Country', value_label='pop', frame_duration=600)
+my_raceplot = my_raceplot.plot(item_label='Episodes', value_label='Ratings', frame_duration=600)
+
+
+
 
 app = dash.Dash(__name__)
 
@@ -169,6 +172,7 @@ server = app.server
 app.layout = html.Div([
     html.Div([
         html.Label(children='Game of Thrones - A Visual Analysis'),
+        html.Br(),
     ], id='title_box', className='top_bar'),
 
     html.Div([
@@ -178,13 +182,13 @@ app.layout = html.Div([
                 html.Br(),
                 html.Br(),
                 radio_season_choice
-            ], id='radio_test', className='row'),
+            ], id='radio_test', className='ext_row'),
 
             html.Div([
                 html.Div([
                     html.Div([
-                        html.Label(id='title_bar'),
-                        dcc.Graph(id='bar_fig'),
+                        html.Label(id='title_scatter'),
+                        dcc.Graph(id = 'scatter_fig'),
                     ], className='box', style={'padding-bottom': '15px'}),
 
                 ], style={'width': '40%'}),
@@ -218,40 +222,40 @@ app.layout = html.Div([
                                 html.Div([
                                     html.H4('Episode Number', style={'font-weight': 'normal'}),
                                     html.H3(id='episode_number')
-                                ], className='box_emissions'),
+                                ], className='box_curiosities'),
 
                                 html.Div([
                                     html.H4('Air Date', style={'font-weight': 'normal'}),
                                     html.H3(id='air_date')
-                                ], className='box_emissions'),
+                                ], className='box_curiosities'),
 
                                 html.Div([
                                     html.H4('Views( Million )', style={'font-weight': 'normal'}),
                                     html.H3(id='views')
-                                ], className='box_emissions'),
+                                ], className='box_curiosities'),
 
                                 html.Div([
                                     html.H4('Number of Votes', style={'font-weight': 'normal'}),
                                     html.H3(id='votes')
-                                ], className='box_emissions'),
+                                ], className='box_curiosities'),
 
                                 html.Div([
                                     html.H4('Writer', style={'font-weight': 'normal'}),
                                     html.H3(id='writer')
-                                ], className='box_emissions'),
+                                ], className='box_curiosities'),
 
                                 html.Div([
                                     html.H4('Star', style={'font-weight': 'normal'}),
                                     html.H3(id='star1')
-                                ], className='box_emissions'),
+                                ], className='box_curiosities'),
                                 html.Div([
-                                    html.H4('Duration(Minutes)', style={'font-weight': 'normal'}),
+                                    html.H4('Duration (Minutes)', style={'font-weight': 'normal'}),
                                     html.H3(id='duration')
-                                ], className='box_emissions'),
+                                ], className='box_curiosities'),
                                 html.Div([
                                     html.H4('Director', style={'font-weight': 'normal'}),
                                     html.H3(id='director')
-                                ], className='box_emissions'),
+                                ], className='box_curiosities'),
                             ], style={'display': 'flex'}),
 
 
@@ -266,35 +270,31 @@ app.layout = html.Div([
 
             html.Div([
                 html.Div([
-                    html.Label("3. Dialogues - Which House is the Star? ",
+                    html.Label("3. Which Episode has the best ratings ? ",
                                    style={'font-size': 'medium'}),
-                    html.Br(),
-                    html .Br(),
                     dcc.Graph(figure=my_raceplot, style={'height': '500px'}),
 
+                ], className='box',style = {'width':'60%'}),
 
-
-                ], className='box',style = {'width':'40%'}),
                 html.Div([
+                    html.Label("4. Who is the line champion?",
+                                   style={'font-size': 'medium'}),
                     dcc.Graph(figure=fig_test),
                 ],className='box',style = {'width':'60%'})
             ],className = 'row'),
 
             html.Div([
                 html.Div([
-                    html.Label("4. Kill or Being Killed ?"),
+                    html.Label("5. Kill or Being Killed ?"),
                     html.Br(),
-                    html.Label("4.1 Top Killers",
+                    html.Label("5.1 Top Killers",
                                style={'font-size': 'medium'}),
                     html.Br(),
                     html.Br(),
                     dcc.Graph(figure=fig_char)
                 ], className='box', style={'width': '60%'}),
             html.Div([
-                    html.Br(),
-                    html.Label("4.2 Type of Kills per House"),
-                    html.Br(),
-                    html.Br(),
+                    html.Label("5.2 Type of Kills per House"),
                     html.Br(),
                     html.Label("Select the House:",
                                style={'font-size': 'medium'}),
@@ -305,20 +305,19 @@ app.layout = html.Div([
                 ], className='box', style={'width': '60%'}),
 
             ], className= 'row'),
-
-            html.Div([
+          html.Div([
                 html.Div([
-                    html.P(['Group 47', html.Br(),'João Silva (m20211014), Pauline Richard (m20211019), Sarra Jebali (20210765), Andreia Bastos(20210604)'], style={'font-size':'12px'}),
-                ], style={'width':'60%'}),
-                html.Div([
-                    html.P(['Sources ', html.Br()], style={'font-size':'12px'})
-                ], style={'width':'37%'}),
-            ], className = 'footer', style={'display':'flex'}),
-
-
-
+                    html.Div([
+                        html.P(['Group 47', html.Br(),'João Silva (m20211014), Pauline Richard (m20211019), Sarra Jebali (20210765), Andreia Bastos(20210604)'], style={'font-size':'12px'}),
+                    ], style={'width':'50%'}),
+                    html.Div([
+                        html.P(['Sources ', html.Br(), 'https://public.tableau.com/app/profile/isha.garg/viz/TheonewithdataFriendsTVShowViz/Dashboard1\n',
+                                'https://www.washingtonpost.com/graphics/entertainment/game-of-thrones'], style={'font-size':'12px'}),
+                    ], style={'width':'42%'}),
+                ])
+          ], className = 'footer', style={'display':'flex'}),
         ], className='main')
-    ])
+    ]),
 ])
 
 
@@ -326,8 +325,8 @@ app.layout = html.Div([
 
 @app.callback(
     [
-        Output('title_bar', 'children'),
-        Output('bar_fig', 'figure'),
+        Output('title_scatter', 'children'),
+        Output('scatter_fig', 'figure'),
         Output('drop_episodes', 'options'),
         Output('drop_episodes', 'value'),
         Output('choose_season', 'children')
@@ -336,26 +335,26 @@ app.layout = html.Div([
         Input('season_choice', 'value')
     ],
 )
-def bar_chart_drop(episodes_select):
+def scatter_chart_drop(episodes_select):
     a = int(episodes_select) - 1
-    ################## Episode Bar Plot ##################
+    ################## Episode Scatter Plot ##################
     title = '1. Season viewers per episode (episode name per mil views)'
-    df = bar_options[a]
+    df = scatter_options[a]
 
     if a ==8:
-        bar_fig = dict(type='scatter',
+        scatter_fig = dict(type='scatter',
              x=df.millionViewers,
              y=df["episodeTitle"],
              #orientation='h',
-             marker_color=[bar_colors[6] if x=='7' else bar_colors[7] for x in df.seasonNumber])
+             marker_color=[scatter_colors[6] if x=='7' else scatter_colors[7] for x in df.seasonNumber])
     else:
-        bar_fig = dict(type='scatter',
+        scatter_fig = dict(type='scatter',
                    x=df.millionViewers,
                    y=df["episodeTitle"],
                    #orientation='h',
-                   marker_color=bar_colors[a])
+                   marker_color=scatter_colors[a])
 
-    ################## Dropdown Bar ##################
+    ################## Dropdown Scatter ##################
     if a == 0:
         options_return = options_s1
         season_chosen = "2. Choose an episode from season 1:"
@@ -389,13 +388,12 @@ def bar_chart_drop(episodes_select):
        season_chosen = "2. Choose a total top 10 viewed episode:"
 
     return title, \
-           go.Figure(data=bar_fig, layout=dict(height=300, font_color='#363535', paper_bgcolor='rgba(0,0,0,0)',
+           go.Figure(data=scatter_fig, layout=dict(height=300, font_color='#000000', paper_bgcolor='rgba(0,0,0,0)',
                                                plot_bgcolor='rgba(0,0,0,0)', margin=dict(l=20, r=20, t=30, b=20),
                                                margin_pad=10,xaxis=dict(title='Views'), yaxis=dict(title='Episode'))), \
            options_return, \
            options_return[0]['value'], \
            season_chosen
-
 
 
 @app.callback(
@@ -455,7 +453,7 @@ def update_info(drop_value, opt):
 def sunburst_graph(house_name_value):
     df = deaths_sunburst[deaths_sunburst.House == house_name_value]
     fig = px.sunburst(df, path = ['Method','Killer'], values = 'Kills',
-                    color = 'Method', color_discrete_sequence = px.colors.sequential.Peach_r).update_traces(hovertemplate = '%{label}<br>' + 'Number of Kills: %{value}', textinfo = "label + percent entry")
+                    color = 'Method', color_discrete_sequence = px.colors.sequential.ice_r).update_traces(hovertemplate = '%{label}<br>' + 'Number of Kills: %{value}', textinfo = "label + percent entry")
 
     fig = fig.update_layout({'margin' : dict(t=0, l=0, r=0, b=10),
                         'paper_bgcolor': '#F9F9F8',
