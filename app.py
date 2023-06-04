@@ -11,7 +11,7 @@ import plotly.express as px
 from raceplotly.plots import barplot
 
 
-path = 'https://raw.githubusercontent.com/Joaomcns/Group_47_DVProject/master/data/'
+path = 'https://raw.githubusercontent.com/Joaomcns/GOT-Dashboard/master/data/'
 
 characters = pd.read_csv(path + 'Characters.csv')
 episodes = pd.read_csv(path + 'Episodes.csv')
